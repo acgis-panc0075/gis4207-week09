@@ -1,7 +1,7 @@
 import streetlight_analyzer
 
-streetlight_analyzer.data_file = "path_to_your_data_file.csv"
-streetlight_analyzer.road_name_field = "ROAD_NAME_"
+streetlight_analyzer.data_file = ""
+streetlight_analyzer.road_name_field = ""
 
 def test_load_streetlights_data():
     streetlight_analyzer.load_streetlights_data()

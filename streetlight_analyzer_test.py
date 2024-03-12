@@ -1,6 +1,6 @@
 import streetlight_analyzer
 
-streetlight_analyzer.data_file = ""
+streetlight_analyzer.data_file = "E:\acgis\gis4207_prog\Data\Ottawa\Road_Centrelines"
 streetlight_analyzer.road_name_field = ""
 
 def test_load_streetlights_data():

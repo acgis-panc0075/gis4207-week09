@@ -2,42 +2,36 @@ import arcpy
 import zipfile
 
 def main():
-    ws = r'..\..\..\..\data\Canada\Canada.gdb'
-    fc = 'MajorCities'
+    workspace = r'..\..\..\..\data\Canada\Canada.gdb'
+    feature_class = 'MajorCities'
     
-    arcpy.env.workspace = ws
+    arcpy.env.workspace = workspace
 
     field_names = ['Name', 'UTM_MAP', 'SHAPE@XY']
-    with open(r'..\output\Cities.kml', 'w') as outfile:
-        outfile.write(get_kml_header())
-        with arcpy.da.SearchCursor(fc, field_names) as cursor:
+    
+    with open(r'..\output\Cities.kml', 'w') as kml_file:
+        kml_file.write(get_kml_header())  
+        with arcpy.da.SearchCursor(feature_class, field_names) as cursor:
             for row in cursor:
-                name = row[0]
-                utm_map = row[1]
-                longitude = row[2][0]
-                latitude = row[2][1]
-                pm = get_placemark(name, longitude, latitude, utm_map)
-                outfile.write(pm)                      
-        outfile.write(get_kml_footer())
+                name, utm_map, (longitude, latitude) = row
+                placemark = get_placemark(name, longitude, latitude, utm_map)
+                kml_file.write(placemark)  
+        kml_file.write(get_kml_footer()) 
 
-    out_kmz_name = r'..\output\cities.kmz'
-    zf = zipfile.ZipFile(out_kmz_name, 'w', zipfile.ZIP_DEFLATED)
-    zf.compression
-    zf.write(r"..\output\cities.kml")
-    zf.close()
+    create_kmz_file()
 
 
 def get_kml_header():
-    kml = """<?xml version="1.0" encoding="UTF-8"?> \
-           <kml xmlns="http://www.opengis.net/kml/2.2">\
+    return """<?xml version="1.0" encoding="UTF-8"?>
+           <kml xmlns="http://www.opengis.net/kml/2.2">
            <Document>
           """
-    return kml
 
 
-def get_placemark(name,longitude,latitude,utm_map):
+def get_placemark(name, longitude, latitude, utm_map):
     url = f'http://www.canmaps.com/topo/nts50/map/{utm_map.lower()}.htm'
-    return f"""<Placemark><name>{name}</name>
+    return f"""<Placemark>
+    <name>{name}</name>
     <description>
       {url}
     </description>
@@ -49,6 +43,14 @@ def get_placemark(name,longitude,latitude,utm_map):
 
 def get_kml_footer():
     return '  </Document>\n</kml>'
+
+
+def create_kmz_file():
+    out_kml = r'..\output\cities.kml'
+    out_kmz = r'..\output\cities.kmz'
+    
+    with zipfile.ZipFile(out_kmz, 'w', zipfile.ZIP_DEFLATED) as kmz_file:
+        kmz_file.write(out_kml, 'cities.kml')  
 
 
 if __name__ == '__main__':
